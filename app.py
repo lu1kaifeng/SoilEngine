@@ -58,7 +58,7 @@ def report(site_id):
 
 @app.route('/')
 def hello_world():  # put application's code here
-    with sql.connect(r'F:\soil_data_reporting\wcvs_soil_data_processed.sqlite') as conn:
+    with sql.connect(r'wcvs_soil_data_processed.sqlite') as conn:
         conn.row_factory = sql.Row
         sites = conn.execute('''select group_concat(site_id, ',')                             as site_id,
                                        group_concat(SUBSTR(lld, 1, INSTR(lld, '-') - 1), ',') as subdiv,-- Everything BEFORE the first space
