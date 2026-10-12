@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DIGSS Soil Test Report</title>
+    <style>
+        :root {
+            --usask-green: #006633;
+            --usask-dark: #1a3322;
+            --border-color: #a8bba2;
+            --bg-light: #f4f7f4;
+            --text-color: #222222;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            color: var(--text-color);
+            background-color: #eef2ee;
+            padding: 20px;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .page-container {
+            max-width: 850px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 30px;
+            border: 1px solid #ccc;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        /* Header Layout */
+        .header-grid {
+            display: grid;
+            grid-template-columns: 1fr 220px;
+            gap: 20px;
+            align-items: center;
+            border-bottom: 2px solid var(--usask-green);
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        .logo-title {
+            font-size: 48px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: var(--usask-green);
+            background: linear-gradient(135deg, #2e7d32, #81c784, #1b5e20);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1;
+        }
+
+        .sub-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #333333;
+            margin-top: 5px;
+        }
+
+        .contact-info {
+            margin-top: 8px;
+            font-size: 12px;
+            color: #555555;
+        }
+
+        /* Compass / Map Box */
+        .map-container {
+            position: relative;
+            width: 200px;
+            height: 180px;
+            border: 1px solid var(--border-color);
+            background: #d8e6d5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-image: radial-gradient(#a3c299 15%, transparent 16%);
+            background-size: 12px 12px;
+        }
+
+        .map-canvas-mock {
+            width: 140px;
+            height: 120px;
+            border: 1px solid #7d9c73;
+            background: #b2d3a8;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: #3d5e34;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .compass-label {
+            position: absolute;
+            font-weight: bold;
+            font-size: 11px;
+            color: var(--usask-dark);
+        }
+
+        .compass-n { top: 2px; left: 50%; transform: translateX(-50%); }
+        .compass-s { bottom: 2px; left: 50%; transform: translateX(-50%); }
+        .compass-e { right: 5px; top: 50%; transform: translateY(-50%); }
+        .compass-w { left: 5px; top: 50%; transform: translateY(-50%); }
+
+        /* Document Title Header */
+        .report-header {
+            background-color: var(--usask-green);
+            color: #ffffff;
+            text-align: center;
+            padding: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+
+        /* Metadata Grid */
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px 12px;
+            background: var(--bg-light);
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .meta-label {
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #555555;
+        }
+
+        .meta-value {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .section-header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            border-bottom: 1px solid var(--usask-green);
+            padding-bottom: 3px;
+            margin-top: 18px;
+            margin-bottom: 8px;
+        }
+
+        /* Data Tables */
+        .section-title {
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--usask-green);
+            text-transform: uppercase;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+            font-size: 12px;
+        }
+
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 6px 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #e2ebd8;
+            color: var(--usask-dark);
+            font-weight: bold;
+        }
+
+        td {
+            background-color: #ffffff;
+        }
+
+        /* Value Indicator Bar */
+        .rating-bar-container {
+            display: flex;
+            align-items: center;
+            height: 18px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .rating-segment {
+            height: 100%;
+            flex: 1;
+            text-align: center;
+            font-size: 9px;
+            line-height: 18px;
+            font-weight: bold;
+            color: #444;
+        }
+
+        .rating-low { background-color: #ffcdd2; }
+        .rating-avg { background-color: #fff9c4; }
+        .rating-high { background-color: #c8e6c9; }
+
+        .rating-marker {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background-color: #000000;
+        }
+
+        /* Organic Status Color Bar Legend */
+        .color-legend-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 10px;
+            font-weight: bold;
+            color: #444;
+        }
+
+        .color-bar-gradient {
+            width: 140px;
+            height: 12px;
+            border-radius: 2px;
+            border: 1px solid #999;
+            background: linear-gradient(to right, #ffecb3, #c8e6c9, #2e7d32);
+        }
+
+        .colored-cell {
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+
+        /* Footnotes and Comments */
+        .comments-box {
+            border: 1px solid var(--border-color);
+            background-color: #fafafa;
+            padding: 10px;
+            font-size: 11px;
+            margin-bottom: 15px;
+            min-height: 50px;
+        }
+
+        .footnotes {
+            font-size: 10px;
+            color: #666666;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .footer-section {
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+            font-size: 11px;
+            color: #444444;
+        }
+
+        .footer-section h4 {
+            font-size: 11px;
+            color: var(--usask-green);
+            margin-bottom: 3px;
+        }
+
+        @media print {
+            body {
+                background: none;
+                padding: 0;
+            }
+            .page-container {
+                border: none;
+                box-shadow: none;
+                padding: 0;
+                width: 100%;
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="page-container">
+
+    <!-- Header Block -->
+    <div class="header-grid">
+        <div>
+            <div class="logo-title">DIGSS</div>
+            <div class="sub-title">Data-driven Innovations with Geospatial Soil Science @ USask</div>
+            <div class="contact-info">
+                <strong>Dr. Chantel Chizen</strong><br>
+                Email: chantel.chizen@usask.ca<br>
+                University of Saskatchewan
+            </div>
+        </div>
+
+        <!-- Field Map Container with Compass Controls -->
+        <div class="map-container">
+            {{ minimap | safe }}
+            <span class="compass-label compass-n">N</span>
+            <span class="compass-label compass-s">S</span>
+            <span class="compass-label compass-e">E</span>
+            <span class="compass-label compass-w">W</span>
+            <!--<div class="map-canvas-mock">
+                Field Elevation &<br>Boundary Map
+            </div>-->
+        </div>
+    </div>
+
+    <!-- Title Bar -->
+    <div class="report-header">
+        Soil Test Report
+    </div>
+
+    <!-- Metadata Section -->
+    <div class="meta-grid">
+        <div class="meta-item">
+            <span class="meta-label">Field ID</span>
+            <span class="meta-value">FIELD-204B</span>
+        </div>
+        <div class="meta-item">
+            <span class="meta-label">RM</span>
+            <span class="meta-value">344 (Caskeyville)</span>
+        </div>
+        <div class="meta-item">
+            <span class="meta-label">TWP</span>
+            <span class="meta-value">36</span>
+        </div>
+        <div class="meta-item">
+            <span class="meta-label">Range</span>
+            <span class="meta-value">05</span>
+        </div>
+        <div class="meta-item">
+            <span class="meta-label">Section</span>
+            <span class="meta-value">12</span>
+        </div>
+        <div class="meta-item">
+            <span class="meta-label">QTR</span>
+            <span class="meta-value">NE</span>
+        </div>
+        <div class="meta-item">
+            <span class="meta-label">Acres</span>
+            <span class="meta-value">155</span>
+        </div>
+        <div class="meta-item">
+            <span class="meta-label">Soil Zone</span>
+            <span class="meta-value">Dark Brown</span>
+        </div>
+        <div class="meta-item" style="grid-column: span 2;">
+            <span class="meta-label">Landowner / Submitted For</span>
+            <span class="meta-value">Prairie Grain Farms Ltd.</span>
+        </div>
+        <div class="meta-item" style="grid-column: span 2;">
+            <span class="meta-label">Contact</span>
+            <span class="meta-value">(306) 555-0199 | info@prairiegrain.ca</span>
+        </div>
+        <div class="meta-item" style="grid-column: span 2;">
+            <span class="meta-label">Sampling Date</span>
+            <span class="meta-value">October 12, 2025</span>
+        </div>
+        <div class="meta-item" style="grid-column: span 2;">
+            <span class="meta-label">Report Date</span>
+            <span class="meta-value">October 20, 2025</span>
+        </div>
+    </div>
+
+    <!-- Soil Texture Table -->
+    <div class="section-header-container"><div class="section-title">Soil Texture Analysis</div></div>
+    <table>
+        <thead>
+            <tr>
+                <th>Depth</th>
+                <th>Texture Class</th>
+                <th>% Sand</th>
+                <th>% Silt</th>
+                <th>% Clay</th>
+                <th>Bulk Density (g/cm³)</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for p in texture %}
+            <tr>
+            <td>{{ p['depth_increment']+' cm' }}</td>
+            <td>{{ p['texture_class'] }}</td>
+            <td>{{ "{:.2f}%".format(p['sand']) if not p['sand'] == None }}</td>
+            <td>{{ "{:.2f}%".format(p['silt']) if not p['silt'] == None  }}</td>
+            <td>{{ "{:.2f}%".format(p['clay']) if not p['clay'] == None  }}</td>
+            <td>{{ "{:.2f}%".format(p['bd']) if not p['bd'] == None  }}</td>
+            </tr>
+        {% endfor %}
+            <!--<tr>
+                <td>0 - 15 cm</td>
+                <td>Clay Loam</td>
+                <td>32%</td>
+                <td>38%</td>
+                <td>30%</td>
+            </tr>
+            <tr>
+                <td>15 - 30 cm</td>
+                <td>Silty Clay Loam</td>
+                <td>20%</td>
+                <td>48%</td>
+                <td>32%</td>
+            </tr>-->
+        </tbody>
+    </table>
+
+    <!-- Bulk Density & Visual Value Scale -->
+    <!--<div class="section-title">Bulk Density & Structure</div>
+    <table>
+        <thead>
+            <tr>
+                <th>Depth</th>
+                <th>Normal (g/cm³)</th>
+                <th>Compacted (g/cm³)</th>
+                <th style="width: 45%;">Relative Rating Value</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for p in bd %}
+            <tr>
+            <td>{{ p['depth_increment']+' cm' }}</td>
+            <td>{{ "{:.2f}".format(p['bd'])if not p['bd'] == None   }}</td>
+                <td>N/A</td>
+            <td>
+                    <div class="rating-bar-container">
+                        <div class="rating-segment rating-low">Low</div>
+                        <div class="rating-segment rating-avg">Average</div>
+                        <div class="rating-segment rating-high">High</div>
+                        <div class="rating-marker" style="left: 62%;"></div>
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+            <tr>
+                <td>0 - 15 cm</td>
+                <td>1.25</td>
+                <td>1.48</td>
+                <td>
+                    <div class="rating-bar-container">
+                        <div class="rating-segment rating-low">Low</div>
+                        <div class="rating-segment rating-avg">Average</div>
+                        <div class="rating-segment rating-high">High</div>
+                        <div class="rating-marker" style="left: 62%;"></div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>15 - 30 cm</td>
+                <td>1.38</td>
+                <td>1.56</td>
+                <td>
+                    <div class="rating-bar-container">
+                        <div class="rating-segment rating-low">Low</div>
+                        <div class="rating-segment rating-avg">Average</div>
+                        <div class="rating-segment rating-high">High</div>
+                        <div class="rating-marker" style="left: 78%;"></div>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>-->
+
+    <!-- Chemical & Organic Properties -->
+    <div class="section-header-container"><div class="section-title">Organic Matter & Nutrients</div>
+    <div class="color-legend-box">
+            <span>Low</span>
+            <div class="color-bar-gradient"></div>
+            <span>High</span>
+    </div></div>
+    <table>
+        <thead>
+            <tr>
+                <th>Depth</th>
+                <th>Total Nitrogen (%)</th>
+                <th>Total Organic Carbon (%)</th>
+                <th>Organic Matter (%)</th>
+                <th>WEOM** (mg/kg)</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for p in nutrient_organic %}
+        <tr>
+                <td>{{ p['depth_increment']+' cm' }}</td>
+        <td>{{ "{:.2f}%".format(p['TN_percent']) if not p['TN_percent'] == None   }}</td>
+        <td>{{ "{:.2f}%".format(p['OC_percent']) if not p['OC_percent'] == None  }}</td>
+        <td>{{ "{:.2f}%".format(p['OM_percent'])  if not p['OM_percent'] == None  }}</td>
+        <td>{{ "{:.1f}".format(p['C_mgL']) if not p['C_mgL'] == None  }}</td>
+            </tr>
+        {% endfor %}
+            <!--<tr>
+                <td>0 - 15 cm</td>
+                <td>0.24%</td>
+                <td>2.85%</td>
+                <td>4.9%</td>
+                <td>185.2</td>
+            </tr>
+            <tr>
+                <td>15 - 30 cm</td>
+                <td>0.14%</td>
+                <td>1.60%</td>
+                <td>2.8%</td>
+                <td>112.0</td>
+            </tr>-->
+        </tbody>
+    </table>
+
+    <!-- pH & Electrical Conductivity -->
+    <div class="section-header-container"><div class="section-title">pH & Salinity Metrics</div>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Depth</th>
+                <th>pH Reading</th>
+                <th>Electrical Conductivity (dS/m)</th>
+                <th>Salinity Class</th>
+                <th>Crop Impact*</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for p in ph_ec %}
+            <tr>
+            <td>{{ p['depth_increment']+' cm' }}</td>
+            <td>{{ p['pH'] }}</td>
+            <td>{{ "{:.2f}%".format(p['ec_dSm']) }}</td>
+            <td>Non-Saline</td>
+                <td>Negligible</td>
+            </tr>
+        {% endfor %}
+            <!--<tr>
+                <td>0 - 15 cm</td>
+                <td>6.8</td>
+                <td>0.8</td>
+                <td>Non-Saline</td>
+                <td>Negligible</td>
+            </tr>
+            <tr>
+                <td>15 - 30 cm</td>
+                <td>7.2</td>
+                <td>1.4</td>
+                <td>Slightly Saline</td>
+                <td>Yield sensitive crops -5%</td>
+            </tr>-->
+        </tbody>
+    </table>
+
+    <!-- Comments Section -->
+    <div class="section-title">Comments & Observations</div>
+    <div class="comments-box">
+        Soil organic matter levels remain within normal parameters for the Dark Brown soil zone. Slight compaction noted in the 15-30 cm subsoil horizon; deep tillage or cover cropping with taproot species is recommended to relieve subsoil density. Salinity levels are currently low with minimal crop impact anticipated for standard cereal and pulse rotations.
+    </div>
+
+    <!-- Footnotes -->
+    <div class="footnotes">
+        * <strong>Crop impact description:</strong> Based on standard provincial yield reduction estimates relative to electrical conductivity readings for non-resistant crops.<br>
+        ** <strong>WEOM:</strong> Water Extractable Organic Matter, representing the biologically active fraction of soil organic matter.
+    </div>
+
+    <!-- Footer Methods & Acknowledgments -->
+    <div class="footer-section">
+        <h4>Summary of Methods</h4>
+        <p>pH and EC measured via 1:1 soil-water suspension. Total organic carbon and total nitrogen determined by dry combustion (LECO). Texture determined by hydrometer method. WEOM extracted using ambient temperature deionized water extraction followed by TOC analysis.</p>
+        <br>
+        <p><em>Thank you for your participation in USask Geospatial Soil Science research.</em></p>
+    </div>
+
+</div>
+
+</body>
+</html>

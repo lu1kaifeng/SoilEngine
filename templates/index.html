@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>All land in DB</title>
+</head>
+<body>
+<ul>
+{%   for s in sites %}
+    <li><a href="{{ url_for('report',site_id=s['lld_pfix']) }}">{{ s['lld_pfix'] }}</a></li>
+{% endfor %}
+</ul>
+</body>
+</html>
