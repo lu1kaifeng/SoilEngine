@@ -6,7 +6,8 @@
     <title>DIGSS Soil Test Report</title>
     <style>
         :root {
-            --usask-green: #006633;
+            --usask-green: #0B6A41;
+            --usask-gold: #FDD62D;
             --usask-dark: #1a3322;
             --border-color: #a8bba2;
             --bg-light: #f4f7f4;
@@ -52,7 +53,7 @@
             font-size: 48px;
             font-weight: 900;
             letter-spacing: 2px;
-            color: var(--usask-green);
+            color:  var(--usask-green);
             background: linear-gradient(135deg, #2e7d32, #81c784, #1b5e20);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -244,7 +245,15 @@
             height: 12px;
             border-radius: 2px;
             border: 1px solid #999;
-            background: linear-gradient(to right, #ffecb3, #c8e6c9, #2e7d32);
+            background: linear-gradient(to right, var(--usask-gold),  var(--usask-green));
+        }
+
+        .binary-color-bar-gradient {
+            width: 70px;
+            height: 12px;
+            border-radius: 2px;
+            border: 1px solid #999;
+            background: linear-gradient(to right, var(--usask-gold) 50%, var(--usask-green) 50%);
         }
 
         .colored-cell {
@@ -304,8 +313,10 @@
     <!-- Header Block -->
     <div class="header-grid">
         <div>
-            <div class="logo-title">DIGSS</div>
-            <div class="sub-title">Data-driven Innovations with Geospatial Soil Science @ USask</div>
+            <div><img src="{{ url_for('static', filename='logo_cropped.png') }}"></div>
+            <!--<div class="logo-title">DIGSS</div>
+
+            <div class="sub-title">Data-driven Innovations with Geospatial Soil Science @ USask</div>-->
             <div class="contact-info">
                 <strong>Dr. Chantel Chizen</strong><br>
                 Email: chantel.chizen@usask.ca<br>
@@ -335,56 +346,61 @@
     <div class="meta-grid">
         <div class="meta-item">
             <span class="meta-label">Field ID</span>
-            <span class="meta-value">FIELD-204B</span>
+            <span class="meta-value">{{ site['lld_pfix'] }}</span>
         </div>
         <div class="meta-item">
             <span class="meta-label">RM</span>
-            <span class="meta-value">344 (Caskeyville)</span>
+            <span class="meta-value">{{ site['rm'] }}</span>
         </div>
         <div class="meta-item">
             <span class="meta-label">TWP</span>
-            <span class="meta-value">36</span>
+            <span class="meta-value">_</span>
         </div>
         <div class="meta-item">
             <span class="meta-label">Range</span>
-            <span class="meta-value">05</span>
+            <span class="meta-value">_</span>
         </div>
         <div class="meta-item">
             <span class="meta-label">Section</span>
-            <span class="meta-value">12</span>
+            <span class="meta-value">_</span>
         </div>
         <div class="meta-item">
             <span class="meta-label">QTR</span>
-            <span class="meta-value">NE</span>
+            <span class="meta-value">{{ site['subdiv'] }}</span>
         </div>
         <div class="meta-item">
             <span class="meta-label">Acres</span>
-            <span class="meta-value">155</span>
+            <span class="meta-value">{{ "{:.2f}".format(site['area_sqm'])if not site['area_sqm'] == None  }}</span>
         </div>
         <div class="meta-item">
             <span class="meta-label">Soil Zone</span>
-            <span class="meta-value">Dark Brown</span>
+            <span class="meta-value">{{ site['soil_zone'] }}</span>
         </div>
         <div class="meta-item" style="grid-column: span 2;">
             <span class="meta-label">Landowner / Submitted For</span>
-            <span class="meta-value">Prairie Grain Farms Ltd.</span>
+            <span class="meta-value">_</span>
         </div>
         <div class="meta-item" style="grid-column: span 2;">
             <span class="meta-label">Contact</span>
-            <span class="meta-value">(306) 555-0199 | info@prairiegrain.ca</span>
+            <span class="meta-value">_</span>
         </div>
         <div class="meta-item" style="grid-column: span 2;">
             <span class="meta-label">Sampling Date</span>
-            <span class="meta-value">October 12, 2025</span>
+            <span class="meta-value">{{ site['sampling_date']}}</span>
         </div>
         <div class="meta-item" style="grid-column: span 2;">
             <span class="meta-label">Report Date</span>
-            <span class="meta-value">October 20, 2025</span>
+            <span class="meta-value">_</span>
         </div>
     </div>
 
     <!-- Soil Texture Table -->
-    <div class="section-header-container"><div class="section-title">Soil Texture Analysis</div></div>
+    <div class="section-header-container"><div class="section-title">Soil Texture and Bulk Density</div>
+    <div class="color-legend-box">
+            <span>Normal</span>
+            <div class="binary-color-bar-gradient"></div>
+            <span>Compacted</span>
+    </div></div>
     <table>
         <thead>
             <tr>
@@ -401,10 +417,11 @@
             <tr>
             <td>{{ p['depth_increment']+' cm' }}</td>
             <td>{{ p['texture_class'] }}</td>
-            <td>{{ "{:.2f}%".format(p['sand']) if not p['sand'] == None }}</td>
-            <td>{{ "{:.2f}%".format(p['silt']) if not p['silt'] == None  }}</td>
-            <td>{{ "{:.2f}%".format(p['clay']) if not p['clay'] == None  }}</td>
-            <td>{{ "{:.2f}%".format(p['bd']) if not p['bd'] == None  }}</td>
+            <td>{{ "{:.1f}%".format(p['sand']) if not p['sand'] == None }}</td>
+            <td>{{ "{:.1f}%".format(p['silt']) if not p['silt'] == None  }}</td>
+            <td>{{ "{:.1f}%".format(p['clay']) if not p['clay'] == None  }}</td>
+            <td style="background-color: {{ "var(--usask-green)" if if_compacted(p['texture_class'],p['bd']) else "var(--usask-gold)" }};{{"color:white" if if_compacted(p['texture_class'],p['bd'])}}">{{ "{:.1f}".format(p['bd']) if not p['bd'] == None  }}</td>
+
             </tr>
         {% endfor %}
             <!--<tr>
@@ -481,7 +498,7 @@
     </table>-->
 
     <!-- Chemical & Organic Properties -->
-    <div class="section-header-container"><div class="section-title">Organic Matter & Nutrients</div>
+    <div class="section-header-container"><div class="section-title">Nitrogen, Carbon and Organic matter</div>
     <div class="color-legend-box">
             <span>Low</span>
             <div class="color-bar-gradient"></div>
@@ -494,17 +511,18 @@
                 <th>Total Nitrogen (%)</th>
                 <th>Total Organic Carbon (%)</th>
                 <th>Organic Matter (%)</th>
-                <th>WEOM** (mg/kg)</th>
+                <!--<th>WEOM** (mg/kg)</th>-->
             </tr>
         </thead>
         <tbody>
+
         {% for p in nutrient_organic %}
         <tr>
                 <td>{{ p['depth_increment']+' cm' }}</td>
-        <td>{{ "{:.2f}%".format(p['TN_percent']) if not p['TN_percent'] == None   }}</td>
-        <td>{{ "{:.2f}%".format(p['OC_percent']) if not p['OC_percent'] == None  }}</td>
-        <td>{{ "{:.2f}%".format(p['OM_percent'])  if not p['OM_percent'] == None  }}</td>
-        <td>{{ "{:.1f}".format(p['C_mgL']) if not p['C_mgL'] == None  }}</td>
+        <td style="background-color: {{ val_to_color(global_avg[p['depth_increment']]['TN_percent_avg'],global_avg[p['depth_increment']]['TN_percent_std'],p['TN_percent']) if not p['TN_percent'] == None }};{{  "color: white" if not p['TN_percent'] == None and if_white_text(global_avg[p['depth_increment']]['TN_percent_avg'],p['TN_percent']) }}">{{ "{:.2f}%".format(p['TN_percent']) if not p['TN_percent'] == None   }}</td>
+        <td style="background-color: {{ val_to_color(global_avg[p['depth_increment']]['OC_percent_avg'],global_avg[p['depth_increment']]['OC_percent_std'],p['OC_percent']) if not p['OC_percent'] == None }};{{  "color: white" if not p['OC_percent'] == None and if_white_text(global_avg[p['depth_increment']]['OC_percent_avg'],p['OC_percent']) }}">{{ "{:.2f}%".format(p['OC_percent']) if not p['OC_percent'] == None  }}</td>
+        <td style="background-color: {{ val_to_color(global_avg[p['depth_increment']]['OM_percent_avg'],global_avg[p['depth_increment']]['OM_percent_std'],p['OM_percent']) if not p['OM_percent'] == None }};{{  "color: white" if not p['OM_percent'] == None and if_white_text(global_avg[p['depth_increment']]['OM_percent_avg'],p['OM_percent']) }}">{{ "{:.2f}%".format(p['OM_percent'])  if not p['OM_percent'] == None  }}</td>
+        <!--<td>{{ "{:.1f}".format(p['C_mgL']) if not p['C_mgL'] == None  }}</td>-->
             </tr>
         {% endfor %}
             <!--<tr>
@@ -525,7 +543,12 @@
     </table>
 
     <!-- pH & Electrical Conductivity -->
-    <div class="section-header-container"><div class="section-title">pH & Salinity Metrics</div>
+    <div class="section-header-container"><div class="section-title">pH and electrical conductivity</div>
+        <div class="color-legend-box">
+            <span>Low</span>
+            <div class="color-bar-gradient"></div>
+            <span>High</span>
+    </div>
     </div>
     <table>
         <thead>
@@ -541,10 +564,10 @@
         {% for p in ph_ec %}
             <tr>
             <td>{{ p['depth_increment']+' cm' }}</td>
-            <td>{{ p['pH'] }}</td>
-            <td>{{ "{:.2f}%".format(p['ec_dSm']) }}</td>
-            <td>Non-Saline</td>
-                <td>Negligible</td>
+            <td>{{ "{:.2f}".format(p['pH']) if not p['pH'] == None else None }}</td>
+            <td>{{ "{:.2f}".format(p['ec_dSm']) }}</td>
+            <td style="background-color: {{ salinity_color(p['ec_dSm']) }};{{ "color: white" if salinity_text_color(p['ec_dSm']) }}">{{ salinity_level(p['ec_dSm'])[0] }}</td>
+                <td>{{ salinity_level(p['ec_dSm'])[1] }}</td>
             </tr>
         {% endfor %}
             <!--<tr>
@@ -572,14 +595,18 @@
 
     <!-- Footnotes -->
     <div class="footnotes">
-        * <strong>Crop impact description:</strong> Based on standard provincial yield reduction estimates relative to electrical conductivity readings for non-resistant crops.<br>
-        ** <strong>WEOM:</strong> Water Extractable Organic Matter, representing the biologically active fraction of soil organic matter.
+
+        * Normal versus compacted bulk density classification based on the University of Minnesota Extension Soil Compaction Guide: <a href="https://conservancy.umn.edu/items/c1345055-559e-4c51-95a4-c8f869f5a49e">https://conservancy.umn.edu/items/c1345055-559e-4c51-95a4-c8f869f5a49e</a><br>
+        <!--* <strong>Crop impact description:</strong> Based on standard provincial yield reduction estimates relative to electrical conductivity readings for non-resistant crops.<br>
+        ** <strong>WEOM:</strong> Water Extractable Organic Matter, representing the biologically active fraction of soil organic matter.-->
+        ** Total nitrogen (TN), total organic carbon (TOC), and organic matter (OM) low-to-high gradient based on values for each property by depth for all points collected by the DIGSS research group within the x soil zone and x parent material. <br>
+        *** Salinity degree based on description of classes from Soils of Saskatchewan: <a href="https://soilsofsask.ca/soil-survey-soil-characteristics/salinity-class.php">https://soilsofsask.ca/soil-survey-soil-characteristics/salinity-class.php</a>
     </div>
 
     <!-- Footer Methods & Acknowledgments -->
     <div class="footer-section">
         <h4>Summary of Methods</h4>
-        <p>pH and EC measured via 1:1 soil-water suspension. Total organic carbon and total nitrogen determined by dry combustion (LECO). Texture determined by hydrometer method. WEOM extracted using ambient temperature deionized water extraction followed by TOC analysis.</p>
+        <p>Bulk density determined by core method. TN determined by dry combustion using the Dumas Method on LECO TruMac. TOC determined by dry combustion on LECO C632. pH and electrical conductivity (EC) determined with 5:1 extraction with Oakton Ion 700 pH/EC Meter. Ratio was used to determine OM (TOC x 1.724). </p>
         <br>
         <p><em>Thank you for your participation in USask Geospatial Soil Science research.</em></p>
     </div>
