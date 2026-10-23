@@ -346,7 +346,7 @@
     <div class="meta-grid">
         <div class="meta-item">
             <span class="meta-label">Field ID</span>
-            <span class="meta-value">{{ site['lld_pfix'] }}</span>
+            <span class="meta-value">{{ site['lld'] }}</span>
         </div>
         <div class="meta-item">
             <span class="meta-label">RM</span>
@@ -354,23 +354,23 @@
         </div>
         <div class="meta-item">
             <span class="meta-label">TWP</span>
-            <span class="meta-value">_</span>
+            <span class="meta-value">{{ site['lld'].split('-')[2] if not site['lld'] == None  }}</span>
         </div>
         <div class="meta-item">
             <span class="meta-label">Range</span>
-            <span class="meta-value">_</span>
+            <span class="meta-value">{{ site['lld'].split('-')[3] if not site['lld'] == None  }}</span>
         </div>
         <div class="meta-item">
             <span class="meta-label">Section</span>
-            <span class="meta-value">_</span>
+            <span class="meta-value">{{ site['lld'].split('-')[1] if not site['lld'] == None  }}</span>
         </div>
         <div class="meta-item">
             <span class="meta-label">QTR</span>
-            <span class="meta-value">{{ site['subdiv'] }}</span>
+            <span class="meta-value">{{ site['lld'].split('-')[0] if not site['lld'] == None }}</span>
         </div>
         <div class="meta-item">
             <span class="meta-label">Acres</span>
-            <span class="meta-value">{{ "{:.2f}".format(site['area_sqm'])if not site['area_sqm'] == None  }}</span>
+            <span class="meta-value">{{ "{:.2f}".format(site['area_sqm'] / 4046.86)if not site['area_sqm'] == None  }}</span>
         </div>
         <div class="meta-item">
             <span class="meta-label">Soil Zone</span>
@@ -390,7 +390,7 @@
         </div>
         <div class="meta-item" style="grid-column: span 2;">
             <span class="meta-label">Report Date</span>
-            <span class="meta-value">_</span>
+            <span class="meta-value">{{now.strftime('%d/%m/%Y') }}</span>
         </div>
     </div>
 
@@ -599,7 +599,7 @@
         * Normal versus compacted bulk density classification based on the University of Minnesota Extension Soil Compaction Guide: <a href="https://conservancy.umn.edu/items/c1345055-559e-4c51-95a4-c8f869f5a49e">https://conservancy.umn.edu/items/c1345055-559e-4c51-95a4-c8f869f5a49e</a><br>
         <!--* <strong>Crop impact description:</strong> Based on standard provincial yield reduction estimates relative to electrical conductivity readings for non-resistant crops.<br>
         ** <strong>WEOM:</strong> Water Extractable Organic Matter, representing the biologically active fraction of soil organic matter.-->
-        ** Total nitrogen (TN), total organic carbon (TOC), and organic matter (OM) low-to-high gradient based on values for each property by depth for all points collected by the DIGSS research group within the x soil zone and x parent material. <br>
+        ** Total nitrogen (TN), total organic carbon (TOC), and organic matter (OM) low-to-high gradient based on values for each property by depth for all points collected by the DIGSS research group within the {{ site['soil_zone'] }} soil zone and {{ site['pm'] }} parent material.<br>
         *** Salinity degree based on description of classes from Soils of Saskatchewan: <a href="https://soilsofsask.ca/soil-survey-soil-characteristics/salinity-class.php">https://soilsofsask.ca/soil-survey-soil-characteristics/salinity-class.php</a>
     </div>
 

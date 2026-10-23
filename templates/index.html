@@ -7,7 +7,7 @@
 <body>
 <ul>
 {%   for s in sites %}
-    <li><a href="{{ url_for('report',site_id=s['lld_pfix']) }}">{{ s['lld_pfix'] }}</a></li>
+    <li><a href="{{ url_for('report',site_id=s['lld']) }}">{{ s['lld'] }}</a></li>
 {% endfor %}
 </ul>
 </body>

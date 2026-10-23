@@ -1,3 +1,4 @@
+from datetime import datetime
 import os
 import re
 
@@ -19,6 +20,11 @@ db.init_app(app)
 
 brand_blue = "#0B6A41"  # Traditional USask Green hex fallback
 brand_orange = "#FDD62D"  # Traditional USask Gold hex fallback
+
+@app.context_processor
+def inject_now():
+    # Makes 'now' variable available in every Jinja template
+    return {'now': datetime.utcnow()}
 
 @app.template_global()
 def if_compacted(texture,db_val):
@@ -132,10 +138,10 @@ def report(site_id):
                                        group_concat(SUBSTR(lld, 1, INSTR(lld, '-') - 1), ',') as subdiv,-- Everything BEFORE the first space
 
                                        -- Everything AFTER the first space
-                                       SUBSTR(lld, INSTR(lld, '-') + 1)                       AS lld_pfix,min(pm) as pm,min(soil_zone) as soil_zone,rm,SUM(area_sqm) as area_sqm,sampling_date
+                                       SUBSTR(lld, INSTR(lld, '-') + 1)                       AS lld_pfix,lld,min(pm) as pm,min(soil_zone) as soil_zone,rm,SUM(area_sqm) as area_sqm,sampling_date
                                 from sites
-                                where not lld IS NULL and lld_pfix = ?
-                                group by lld_pfix;''',(site_id,))
+                                where not lld IS NULL and lld = ?
+                                group by lld;''',(site_id,))
         site = sites.fetchone()
         site = dict(site)
         pm = site['pm']
@@ -158,9 +164,9 @@ def report(site_id):
 
         #bd = conn.execute(f'select depth_increment,avg(bd_notsplined) as bd from main.bulk_density where bulk_density.sample_point_id in (select sample_point_id from sampling_points where  site_id in ({placeholders})) group by depth_increment',site_id_list)
         #bd = [dict(p) for p in bd]
-        texture = conn.execute(f'select texture.depth_increment as depth_increment,avg(sand_percent) as sand, avg(silt_percent) as silt, avg(clay_percent) as clay,bd_notsplined as bd,texture_class from main.texture join bulk_density on texture.sample_point_id = bulk_density.sample_point_id where texture.sample_point_id in (select sample_point_id from sampling_points where  site_id in ({placeholders})) group by texture.depth_increment',site_id_list)
+        texture = conn.execute(f'select texture.depth_increment as depth_increment,avg(sand_percent) as sand, avg(silt_percent) as silt, avg(clay_percent) as clay,bd_notsplined as bd,texture_class from main.texture join bulk_density on texture.sample_point_id = bulk_density.sample_point_id and texture.depth_increment = bulk_density.depth_increment where texture.sample_point_id in (select sample_point_id from sampling_points where  site_id in ({placeholders})) group by texture.depth_increment',site_id_list)
         texture = [dict(p) for p in texture]
-        nutrient_organic = conn.execute(f'select nitrogen.depth_increment as depth_increment,avg(nitrogen.TN_percent) as TN_percent,avg(OC_percent) as OC_percent,avg(OM_percent) as OM_percent, avg(w.C_mgL_uncorrected) as C_mgL,avg(w.N_mgL_uncorrected) as N_mgL from nitrogen join main.carbon_and_OM caO on nitrogen.sample_point_id = caO.sample_point_id join main.weom w on caO.sample_point_id = w.sample_point_id  where nitrogen.sample_point_id in (select sample_point_id from sampling_points where  site_id in ({placeholders})) group by nitrogen.depth_increment',site_id_list)
+        nutrient_organic = conn.execute(f'select nitrogen.depth_increment as depth_increment,avg(nitrogen.TN_percent) as TN_percent,avg(OC_percent) as OC_percent,avg(OM_percent) as OM_percent, avg(w.C_mgL_uncorrected) as C_mgL,avg(w.N_mgL_uncorrected) as N_mgL from nitrogen join main.carbon_and_OM caO on nitrogen.sample_point_id = caO.sample_point_id and caO.sample_number = nitrogen.sample_number join main.weom w on caO.sample_point_id = w.sample_point_id and w.sample_number = caO.sample_number where nitrogen.sample_point_id in (select sample_point_id from sampling_points where  site_id in ({placeholders})) group by nitrogen.depth_increment',site_id_list)
         nutrient_organic = [dict(p) for p in nutrient_organic]
         ph_ec = conn.execute(f'select depth_increment,avg(ec_dSm) as ec_dSm, avg(ph) as pH from main.ph_ec where ph_ec.sample_point_id in (select sample_point_id from sampling_points where  site_id in ({placeholders})) group by depth_increment',site_id_list)
         ph_ec = [dict(p) for p in ph_ec]
@@ -174,10 +180,10 @@ def hello_world():  # put application's code here
                                        group_concat(SUBSTR(lld, 1, INSTR(lld, '-') - 1), ',') as subdiv,-- Everything BEFORE the first space
 
                                        -- Everything AFTER the first space
-                                       SUBSTR(lld, INSTR(lld, '-') + 1)                       AS lld_pfix
+                                       SUBSTR(lld, INSTR(lld, '-') + 1)                       AS lld_pfix,lld
                                 from sites
                                 where not lld IS NULL
-                                group by lld_pfix;''')
+                                group by lld;''')
         return render_template('index.html',sites = [dict(s) for s in sites])
 if __name__ == '__main__':
     app.run()
